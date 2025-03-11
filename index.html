@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>قصصي</title>
+    <meta charset="UTF-8">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background-color: #e6f3fa; /* أزرق فاتح هادئ */
+            margin: 0; 
+            padding: 20px; 
+            color: #333; /* لون نص داكن للتوضيح */
+        }
+        h1 { 
+            color: #2c6e49; /* أخضر ناعم وواضح */
+            margin-bottom: 20px; 
+        }
+        .story { 
+            background: #ffffff; /* أبيض نقي */
+            margin: 15px auto; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* ظل خفيف */
+            max-width: 700px; 
+            color: #444; /* لون نص مريح */
+        }
+        #loading { 
+            color: #666; /* رمادي هادئ */
+            font-size: 16px; 
+            margin: 10px 0; 
+        }
+        #error { 
+            color: #d32f2f; /* أحمر فاتح للأخطاء مع توضيح */
+            font-size: 16px; 
+            margin-top: 10px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>منصة القصص</h1>
+    <div id="loading">جارٍ تحميل القصص...</div>
+    <div id="stories"></div>
+    <div id="error"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script>
+        // إعداد Firebase باستخدام الـ config الخاص بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqJet9BsvM_RNzmw_wLm4RKdiSdu_jqz0",
+            authDomain: "storyapp-4b5e3.firebaseapp.com",
+            projectId: "storyapp-4b5e3",
+            storageBucket: "storyapp-4b5e3.firebasestorage.app",
+            messagingSenderId: "602100346163",
+            appId: "1:602100346163:web:8db1c214f0b6ed66566246",
+            measurementId: "G-LC71N40M7M"
+        };
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+            console.log("Firebase initialized successfully");
+
+            const loadingDiv = document.getElementById("loading");
+            const storiesDiv = document.getElementById("stories");
+            const errorDiv = document.getElementById("error");
+
+            db.collection("stories").get().then((querySnapshot) => {
+                loadingDiv.style.display = "none"; // إخفاء رسالة التحميل
+                if (querySnapshot.empty) {
+                    storiesDiv.innerHTML = "<p>لا توجد قصص حاليًا.</p>";
+                    return;
+                }
+                querySnapshot.forEach((doc) => {
+                    const story = doc.data();
+                    storiesDiv.innerHTML += `
+                        <div class="story">
+                            <h2>${story.title || 'بدون عنوان'}</h2>
+                            <p>${story.content || 'بدون محتوى'}</p>
+                        </div>`;
+                });
+            }).catch((error) => {
+                loadingDiv.style.display = "none";
+                console.log("Error fetching stories: ", error);
+                errorDiv.innerText = "خطأ في جلب القصص: " + error.message;
+            });
+        } catch (error) {
+            console.log("Error initializing Firebase: ", error);
+            errorDiv.innerText = "خطأ في تهيئة Firebase: " + error.message;
+        }
+    </script>
+</body>
+</html>
